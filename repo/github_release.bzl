@@ -12,7 +12,7 @@ def _github_release_impl(ctx):
         fail("A repository must be provided")
     if not ctx.attr.version:
         fail("A version must be provided, e.g. '1.0.0'")
-    extension = ctx.attr.type if ctx.attr.type else ".tar.gz"
+    extension = ctx.attr.type if ctx.attr.type else "tar.gz"
     
     url = url_format.format(ctx.attr.owner,
                             ctx.attr.repository,
@@ -181,8 +181,8 @@ bazel project soon, but I need this now.
 How to use with public github repositories
 ------------------------------------------
 
-Say you wish to pull version 1.0.1 of this repository, which resides at
-`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.1.tar.gz`
+Say you wish to pull version 1.0.2 of this repository, which resides at
+`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.2.tar.gz`
 
 You can do so by having this in your workspace:
 ```
@@ -190,7 +190,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.1",
+    version = "1.0.2",
     sha256 = "a0593518d98499d70f48b126ee7de4f5a566165e9f9cf71b75feb92a2258f2dd"
 )
 ```
@@ -217,7 +217,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.1",
+    version = "1.0.2",
     token = "[your-token]",
 )
 ```
@@ -236,7 +236,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.1",
+    version = "1.0.2",
     token = GITHUB_TOKEN,
 )
 ```

@@ -36,7 +36,7 @@ http_archive(
     name = "com_github_arkinstall_utils",
     url = "https://github.com/jake-arkinstall/bazel_utils/archive/1.0.2.tar.gz",
     strip_prefix = "bazel_utils-1.0.2",
-    sha256 = "a0593518d98499d70f48b126ee7de4f5a566165e9f9cf71b75feb92a2258f2dd"
+    sha256 = "794f6c0fa0b3ad4029d698d5c00806a20c2a9378d842398b271831e70c1031a6"
 )
 
 load('@com_github_arkinstall_utils//repo:github_release.bzl', 'github_release')
@@ -57,6 +57,7 @@ github_release(
     owner = "jake-arkinstall",
     repository = "bazel_utils",
     version = "1.0.2",
+    sha256 = "794f6c0fa0b3ad4029d698d5c00806a20c2a9378d842398b271831e70c1031a6"
 )
 ```
 

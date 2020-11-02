@@ -34,9 +34,9 @@ load(
 
 http_archive(
     name = "com_github_arkinstall_utils",
-    url = "https://github.com/jake-arkinstall/bazel_utils/archive/1.0.0.tar.gz',
-    strip_prefix = 'bazel_utils-1.0.0',
-    sha256 = "sha"
+    url = "https://github.com/jake-arkinstall/bazel_utils/archive/1.0.1.tar.gz',
+    strip_prefix = 'bazel_utils-1.0.1',
+    sha256 = "a0593518d98499d70f48b126ee7de4f5a566165e9f9cf71b75feb92a2258f2dd"
 )
 
 load('@com_github_arkinstall_utils//repo/github_release.bzl', 'github_release')
@@ -47,8 +47,8 @@ And then progress to the next section.
 
 ## How to use with public github repositories
 
-Say you wish to pull version 1.0.0 of this repository, which resides at
-`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.0.tar.gz`
+Say you wish to pull version 1.0.1 of this repository, which resides at
+`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.1.tar.gz`
 
 You can do so by having this in your workspace:
 ```
@@ -56,7 +56,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.0",
+    version = "1.0.1",
 )
 ```
 
@@ -81,7 +81,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.0",
+    version = "1.0.1",
     token = "[your-token]",
 )
 ```
@@ -102,7 +102,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.0",
+    version = "1.0.1",
     token = GITHUB_TOKEN,
 )
 ```

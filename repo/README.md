@@ -34,8 +34,8 @@ load(
 
 http_archive(
     name = "com_github_arkinstall_utils",
-    url = "https://github.com/jake-arkinstall/bazel-utils/archive/1.0.0.tar.gz',
-    strip_prefix = 'bazel-utils_1.0.0',
+    url = "https://github.com/jake-arkinstall/bazel_utils/archive/1.0.0.tar.gz',
+    strip_prefix = 'bazel_utils-1.0.0',
     sha256 = "sha"
 )
 

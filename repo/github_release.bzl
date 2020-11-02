@@ -24,8 +24,9 @@ def _github_release_impl(ctx):
     if ctx.attr.token:
         auth[url] = {
             'type': 'pattern',
-            'pattern': 'Basic {}'.format(ctx.attr.token)
+            'pattern': 'token {}'.format(ctx.attr.token)
         }
+    print(auth)
     download_info = ctx.download_and_extract(
         [url],
         "",
@@ -181,8 +182,8 @@ bazel project soon, but I need this now.
 How to use with public github repositories
 ------------------------------------------
 
-Say you wish to pull version 1.0.2 of this repository, which resides at
-`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.2.tar.gz`
+Say you wish to pull version 1.0.3 of this repository, which resides at
+`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.3.tar.gz`
 
 You can do so by having this in your workspace:
 ```
@@ -190,7 +191,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.2",
+    version = "1.0.3",
     sha256 = "794f6c0fa0b3ad4029d698d5c00806a20c2a9378d842398b271831e70c1031a6"
 )
 ```
@@ -217,7 +218,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.2",
+    version = "1.0.3",
     token = "[your-token]",
 )
 ```
@@ -236,7 +237,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.2",
+    version = "1.0.3",
     token = GITHUB_TOKEN,
 )
 ```

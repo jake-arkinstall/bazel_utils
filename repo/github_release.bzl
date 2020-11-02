@@ -192,7 +192,7 @@ github_release(
     owner = "jake-arkinstall",
     repository = "bazel_utils",
     version = "1.0.3",
-    sha256 = "794f6c0fa0b3ad4029d698d5c00806a20c2a9378d842398b271831e70c1031a6"
+    sha256 = "8616f3beb416e3e0399b3c14eb9dcdf77239f12fdaeb9729449850329b99e989"
 )
 ```
 

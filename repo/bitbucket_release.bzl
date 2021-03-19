@@ -13,7 +13,8 @@ def _bitbucket_release_impl(ctx):
         fail("A version must be provided, e.g. '1.0.0'")
     if not ctx.attr.strip_prefix:
         fail("A strip prefix must be provided - bitbucket puts files into a directory " +
-             "based on the commit hash."
+             "based on the commit hash.")
+
     extension = ctx.attr.type if ctx.attr.type else ".tar.gz"
     
     url = url_format.format(ctx.attr.owner,

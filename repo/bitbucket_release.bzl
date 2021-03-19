@@ -59,6 +59,10 @@ _bitbucket_release_attrs = {
             "in the form `https://bitbucket.com/{owner}/{repository}/archive/{version}.{ext}`, " +
             "and to strip the prefix in the form `{repository}_{version}`"
     ),
+    "strip_prefix": attr.string(
+        doc = 
+            "The directory that files are placed into at this tagpoint of the repo"
+    ),
     "token": attr.string(
         doc = 
             "The bitbucket token required to access the repository, if it is not publicly " + 

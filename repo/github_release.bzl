@@ -12,7 +12,7 @@ def _github_release_impl(ctx):
         fail("A repository must be provided")
     if not ctx.attr.version:
         fail("A version must be provided, e.g. '1.0.0'")
-    extension = ctx.attr.type if ctx.attr.type else ".tar.gz"
+    extension = ctx.attr.type if ctx.attr.type else "tar.gz"
     
     url = url_format.format(ctx.attr.owner,
                             ctx.attr.repository,

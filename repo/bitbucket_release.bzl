@@ -16,7 +16,7 @@ def _bitbucket_release_impl(ctx):
              "based on the commit hash.")
 
     extension = ctx.attr.type if ctx.attr.type else ".tar.gz"
-    strip_prefix = cx.attr.strip_prefix
+    strip_prefix = ctx.attr.strip_prefix
     
     url = url_format.format(ctx.attr.owner,
                             ctx.attr.repository,

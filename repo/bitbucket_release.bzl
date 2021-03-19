@@ -4,7 +4,7 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl",
      "workspace_and_buildfile")
 
 def _bitbucket_release_impl(ctx):
-    url_format = "https://bitbucket.com/{}/{}/get/{}.{}"
+    url_format = "https://bitbucket.org/{}/{}/get/{}.{}"
     if not ctx.attr.owner:
         fail("An owner must be provided")
     if not ctx.attr.repository:

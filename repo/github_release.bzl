@@ -4,6 +4,20 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl",
      "workspace_and_buildfile")
 
 def _github_release_impl(ctx):
+    if ctx.attr.override_path:
+        path = ctx.path(ctx.attr.override_path)
+        if path.exists:
+            print("An override_path for {} was provided, and it exists: {}".format(
+                    ctx.attr.name, ctx.attr.override_path))
+            print("Using this instead of the remote. Note that this should not be relied " +
+                  "upon when committing, as it violates hermeticity. A local repository " +
+                  "cannot be accessed by any other machine.")
+            ctx.symlink(ctx.attr.override_path, "")
+            return
+        else:
+            print("An override_path for {} was provided, but it does not exist: {}".format(
+                    ctx.attr.name, ctx.attr.override_path))
+            print("Using remote instead.")
     url_format = "https://github.com/{}/{}/archive/{}.{}"
     prefix_format = "{}-{}"
     if not ctx.attr.owner:
@@ -80,6 +94,12 @@ _github_release_attrs = {
             "of the file downloaded. _It is a security risk to omit the SHA-256 as remote " +
             "files can change._ At best omitting this field will make your build non-hermetic. " +
             "It is optional to make development easier but should be set before shipping.",
+    ),
+    "override_path": attr.string(
+        doc = 
+            "If provided, and if override_path exists, then it will be used as a local repository " +
+            "instead of fetching the remote. This is useful in development environments, where you " +
+            "want to try modifications to a remote repository without committing and tagging them.",
     ),
     "canonical_id": attr.string(
         doc =

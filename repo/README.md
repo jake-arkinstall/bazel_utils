@@ -1,14 +1,16 @@
-# github_release.bzl
+# github_release.bzl and bitbucket_release.bzl
 
-Downloads a bazel repository from github, using the project, repository, version,
-and an optional login token to form an URL to a .tar.gz archive. This is downloaded
-as a compressed archive file, decompressed, and its targets are made available for
-binding.
+Downloads a bazel repository from github or bitbucket, using the project, repository,
+version, and an optional login token to form an URL to a .tar.gz archive. This is
+downloaded as a compressed archive file, decompressed, and its targets are made available
+for binding. A strip_prefix is required for bitbucket_release because the repository code
+is put into a directory suffixed with part of the commit hash - in github, the same directory
+uses the tag version, so this is determined automatically from the other parameters.
 
 ## Why?
 
 The use case for this method is predominantly when you want to access a
-private github repository without the need for a netrc file.
+private github or bitbucket repository without the need for a netrc file.
 
 Netrc files can be somewhat cumbersome to work with in Bazel. The netrc parameter
 to http_archive must be an absolute path, thus tied to your filesystem, which seems
@@ -22,7 +24,7 @@ bazel project soon, but I need this now.
 
 ## Getting started
 
-First you need to be able to access github_release from your workspace.
+First you need to be able to access github_release or bitbucket_release from your workspace.
 
 To do this, you can fetch it with http_archive:
 
@@ -39,7 +41,9 @@ http_archive(
     sha256 = "8616f3beb416e3e0399b3c14eb9dcdf77239f12fdaeb9729449850329b99e989"
 )
 
-load('@com_github_arkinstall_utils//repo:github_release.bzl', 'github_release')
+load('@com_github_arkinstall_utils//repo/github_release.bzl', 'github_release')
+# or
+load('@com_github_arkinstall_utils//repo/bitbucket_release.bzl', 'bitbucket_release')
 ```
 
 And then progress to the next section.
@@ -74,8 +78,14 @@ are implemented in the same way as in http_archive as of bazel version 3.7.0.
 ## Private Repositories:
 
 If this were a private repository, and your account has access to it, you can
-generate a token at https://github.com/settings/tokens/new and pass it to a 
-`token` parameter:
+generate a token at https://github.com/settings/tokens/new. You can do the same
+through your account using bitbucket cloud by using the "APP passwords" feature:
+generate a password and generate the base64 authorization code:
+```
+echo -n "your_bitbucket_username:generated_password" | base64
+```
+
+Once you have your token, simply pass it to a `token` parameter:
 
 ```
 github_release(
@@ -86,19 +96,32 @@ github_release(
     token = "[your-token]",
 )
 ```
+or, with a bitbucket repository,
+```
+bitbucket_release(
+    name = "some_name",
+    owner = "jake-arkinstall",
+    repository = "bazel_utils",
+    version = "1.0.1",
+    strip_prefix = "bazel_utils-abcdefg,
+    token = "[your-token]",
+)
+```
+
 
 Of course, this is not particularly secure, especially if you are working
 in a team. The best solution is to create a bazel file, e.g. `security.bzl`,
 and define your token in there:
 
 ```
-GITHUB_TOKEN = "[your-token]"
+GITHUB_TOKEN = "[your-github-token]"
+BITBUCKET_TOKEN = "[your-bitbucket-token]"
 ```
 
 Then import it in your workspace and use it as follows:
 
 ```
-load('//:security.bzl', 'GITHUB_TOKEN')
+load('//:security.bzl', 'GITHUB_TOKEN', 'BITBUCKET_TOKEN')
 github_release(
     name = "some_name",
     owner = "jake-arkinstall",
@@ -106,6 +129,14 @@ github_release(
     version = "1.0.3",
     token = GITHUB_TOKEN,
 )
+bitbucket_release(
+    name = "some_name",
+    owner = "jake-arkinstall",
+    repository = "bazel_utils",
+    version = "1.0.1",
+    token = BITBUCKET_TOKEN,
+)
+
 ```
 
 Make sure you add security.bzl to your gitignore file. If you aren't sure
@@ -116,6 +147,7 @@ Additionally, you may choose to add a security.bzl.default file which contains
 
 ```
 GITHUB_TOKEN = '[please insert your token here]'
+BITBUCKET_TOKEN = '[please insert your token here]'
 ```
 
 and instruct users, through the README.md file or similar, to copy it and

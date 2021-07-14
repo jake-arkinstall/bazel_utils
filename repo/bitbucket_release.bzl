@@ -3,7 +3,7 @@ load("@bazel_tools//tools/build_defs/repo:utils.bzl",
      "update_attrs",
      "workspace_and_buildfile")
 
-def _github_release_impl(ctx):
+def _bitbucket_release_impl(ctx):
     if ctx.attr.override_path:
         path = ctx.path(ctx.attr.override_path)
         if path.exists:
@@ -18,29 +18,30 @@ def _github_release_impl(ctx):
             print("An override_path for {} was provided, but it does not exist: {}".format(
                     ctx.attr.name, ctx.attr.override_path))
             print("Using remote instead.")
-    url_format = "https://github.com/{}/{}/archive/{}.{}"
-    prefix_format = "{}-{}"
+    url_format = "https://bitbucket.org/{}/{}/get/{}.{}"
     if not ctx.attr.owner:
         fail("An owner must be provided")
     if not ctx.attr.repository:
         fail("A repository must be provided")
     if not ctx.attr.version:
         fail("A version must be provided, e.g. '1.0.0'")
+    if not ctx.attr.strip_prefix:
+        fail("A strip prefix must be provided - bitbucket puts files into a directory " +
+             "based on the commit hash.")
+
     extension = ctx.attr.type if ctx.attr.type else "tar.gz"
+    strip_prefix = ctx.attr.strip_prefix
     
     url = url_format.format(ctx.attr.owner,
                             ctx.attr.repository,
                             ctx.attr.version,
                             extension)
-    strip_prefix = prefix_format.format(ctx.attr.repository,
-                                 ctx.attr.version)
     auth = {}
     if ctx.attr.token:
         auth[url] = {
             'type': 'pattern',
-            'pattern': 'token {}'.format(ctx.attr.token)
+            'pattern': 'Basic {}'.format(ctx.attr.token)
         }
-    print(auth)
     download_info = ctx.download_and_extract(
         [url],
         "",
@@ -52,40 +53,44 @@ def _github_release_impl(ctx):
     )
     workspace_and_buildfile(ctx)
     patch(ctx)
-    return update_attrs(ctx.attr, _github_release_attrs.keys(), {"sha256": download_info.sha256})
+    return update_attrs(ctx.attr, _bitbucket_release_attrs.keys(), {"sha256": download_info.sha256})
 
-_github_release_attrs = {
+_bitbucket_release_attrs = {
     "owner": attr.string(
         doc = 
-            "The owner of the github project. Used to generate the url to the archive " +
-            "in the form `https://github.com/{owner}/{repository}/archive/{version}.{ext}`."
+            "The owner of the bitbucket project. Used to generate the url to the archive " +
+            "in the form `https://bitbucket.com/{owner}/{repository}/archive/{version}.{ext}`."
     ),
     "repository": attr.string(
         doc = 
             "The name of the repository. Used to generate the url to the archive " +
-            "in the form `https://github.com/{owner}/{repository}/archive/{version}.{ext}`, " +
+            "in the form `https://bitbucket.com/{owner}/{repository}/archive/{version}.{ext}`, " +
             "and to strip the prefix in the form `{repository}_{version}`"
     ),
     "version": attr.string(
         doc = 
             "The tagged version of the repository. Used to generate the url to the archive " +
-            "in the form `https://github.com/{owner}/{repository}/archive/{version}.{ext}`, " +
+            "in the form `https://bitbucket.com/{owner}/{repository}/archive/{version}.{ext}`, " +
             "and to strip the prefix in the form `{repository}_{version}`"
+    ),
+    "strip_prefix": attr.string(
+        doc = 
+            "The directory that files are placed into at this tagpoint of the repo"
     ),
     "token": attr.string(
         doc = 
-            "The github token required to access the repository, if it is not publicly " + 
+            "The bitbucket token required to access the repository, if it is not publicly " + 
             "accessible. If your account can access this repository, but you do not have " +
-            "a suitable key, go to https://github.com/settings/tokens and generate a new " + 
+            "a suitable key, go to https://bitbucket.com/settings/tokens and generate a new " + 
             "token. Make sure you only provide it with repo scope for security reasons."
     ),
     "type": attr.string(
         doc = 
-            "The file extension to download of the github project. Used to generate the " + 
+            "The file extension to download of the bitbucket project. Used to generate the " + 
             "url to the archive in the form " + 
-            "`https://github.com/{owner}/{repository}/archive/{version}.{ext}`, " +
+            "`https://bitbucket.com/{owner}/{repository}/archive/{version}.{ext}`, " +
             "where we substitute `ext` for `type` for consistency with http_archive parameters. " +
-            "As with http_archive, the following are supported, but ensure github provides whichever " +
+            "As with http_archive, the following are supported, but ensure bitbucket provides whichever " +
             "extension you're choosing: `\"zip\"`, `\"jar\"`, `\"war\"`, `\"tar\"`, `\"tar.gz\"`, " +
             "`\"tgz\"`, `\"tar.xz\"`, `\"tar.bz2\"`."
     ),
@@ -174,20 +179,20 @@ _github_release_attrs = {
     ),
 }
 
-github_release = repository_rule(
-    implementation = _github_release_impl,
-    attrs = _github_release_attrs,
+bitbucket_release = repository_rule(
+    implementation = _bitbucket_release_impl,
+    attrs = _bitbucket_release_attrs,
     doc = """
-Downloads a bazel repository from github, using the project, repository, version,
-and an optional login token to form an URL to a .tar.gz archive. This is downloaded
-as a compressed archive file, decompressed, and its targets are made available for
-binding.
+Downloads a bazel repository from bitbucket, using the project, repository, version,
+strip_prefix and an optional login token to form an URL to a .tar.gz archive. This is
+downloaded as a compressed archive file, decompressed, and its targets are made available
+for binding.
 
 Why?
 -----
 
 The use case for this method is predominantly when you want to access a
-private github repository without the need for a netrc file.
+private bitbucket repository without the need for a netrc file.
 
 Netrc files can be somewhat cumbersome to work with in Bazel. The netrc parameter
 to http_archive must be an absolute path, thus tied to your filesystem, which seems
@@ -199,26 +204,27 @@ need a `.netrc` file in the first place.
 A netrc file needn't be necessary, and I will be putting in a pull request to the
 bazel project soon, but I need this now.
 
-How to use with public github repositories
+How to use with public bitbucket repositories
 ------------------------------------------
 
-Say you wish to pull version 1.0.3 of this repository, which resides at
-`https://github.com/jake-arkinstall/bazel_utils/archive/1.0.3.tar.gz`
+Say you wish to pull version 1.0.1 of this repository, which resides at
+`https://bitbucket.com/jake-arkinstall/bazel_utils/archive/1.0.1.tar.gz`
 
 You can do so by having this in your workspace:
 ```
-github_release(
+bitbucket_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
-    sha256 = "8616f3beb416e3e0399b3c14eb9dcdf77239f12fdaeb9729449850329b99e989"
+    version = "1.0.1",
+    strip_prefix = "bazel_utils-abcdefg",
+    sha256 = "a0593518d98499d70f48b126ee7de4f5a566165e9f9cf71b75feb92a2258f2dd"
 )
 ```
 
 You can now access the repository through `@some_name//`.
 
-github_release supports all of the parameters from http_archive, excluding
+bitbucket_release supports all of the parameters from http_archive, excluding
 `url`, `urls`, `netrc`, `auth_patterns`, and `strip_prefix`, as these are
 instead infered from the main arguments. You can (and should) pass a sha256
 parameter, which will be output for you if you omit it, as well as patch arguments,
@@ -230,15 +236,16 @@ Private Repositories:
 ---------------------
 
 If this were a private repository, and your account has access to it, you can
-generate a token at https://github.com/settings/tokens/new and pass it to a 
+generate a token at https://bitbucket.com/settings/tokens/new and pass it to a 
 `token` parameter:
 
 ```
-github_release(
+bitbucket_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
+    version = "1.0.1",
+    strip_prefix = "bazel_utils-abcdefg",
     token = "[your-token]",
 )
 ```
@@ -247,18 +254,19 @@ Of course, this is not particularly secure, especially if you are working
 in a team. The best solution is to create a bazel file, e.g. `security.bzl`,
 and define your token in there:
 ```
-GITHUB_TOKEN = "[your-token]"
+BITBUCKET_TOKEN = "[your-token]"
 ```
 
 Then import it in your workspace and use it as follows:
 ```
-load('//:security.bzl', 'GITHUB_TOKEN')
-github_release(
+load('//:security.bzl', 'BITBUCKET_TOKEN')
+bitbucket_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
-    token = GITHUB_TOKEN,
+    version = "1.0.1",
+    strip_prefix = "bazel_utils-abcdefg",
+    token = BITBUCKET_TOKEN,
 )
 ```
 
@@ -268,7 +276,7 @@ https://www.bmc.com/blogs/gitignore/
 
 Additionally, you may choose to add a security.bzl.default file which contains
 ```
-GITHUB_TOKEN = '[please insert your token here]'
+BITBUCKET_TOKEN = '[please insert your token here]'
 ```
 and instruct users, through the README.md file or similar, to copy it and
 add their own key, in the safe knowledge that their local version will not

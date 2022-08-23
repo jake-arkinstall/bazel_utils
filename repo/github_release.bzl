@@ -38,7 +38,7 @@ def _github_release_impl(ctx):
     if ctx.attr.token:
         auth[url] = {
             'type': 'pattern',
-            'pattern': 'token {}'.format(ctx.attr.token)
+            'pattern': 'Basic {}'.format(ctx.attr.token)
         }
     print(auth)
     download_info = ctx.download_and_extract(

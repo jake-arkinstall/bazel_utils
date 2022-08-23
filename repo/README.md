@@ -51,7 +51,7 @@ And then progress to the next section.
 
 ## How to use with public github repositories
 
-Say you wish to pull version 1.0.3 of this repository, which resides at
+Say you wish to pull version 1.2.0 of this repository, which resides at
 `https://github.com/jake-arkinstall/bazel_utils/archive/1.0.3.tar.gz`
 
 You can do so by having this in your workspace:
@@ -60,8 +60,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
-    sha256 = "8616f3beb416e3e0399b3c14eb9dcdf77239f12fdaeb9729449850329b99e989"
+    version = "1.2.0"
 )
 ```
 
@@ -79,11 +78,17 @@ are implemented in the same way as in http_archive as of bazel version 3.7.0.
 
 If this were a private repository, and your account has access to it, you can
 generate a token at https://github.com/settings/tokens/new. You can do the same
-through your account using bitbucket cloud by using the "APP passwords" feature:
-generate a password and generate the base64 authorization code:
+through your account using bitbucket cloud by using the "APP passwords" feature.
+
+Once you've generated a private token, you need to combine it with your
+username into a base64 string, using:
 ```
-echo -n "your_bitbucket_username:generated_password" | base64
+echo -n "your_username:generated_password" | base64
 ```
+
+Take care to include `\n` or your generated password will be polluted with a newline
+character resulting from `echo`. From experimentation, bitbucket expects your public
+username, while github expects your registered email address as the username field.
 
 Once you have your token, simply pass it to a `token` parameter:
 
@@ -92,7 +97,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
+    version = "1.2.0",
     token = "[your-token]",
 )
 ```
@@ -102,7 +107,7 @@ bitbucket_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.1",
+    version = "1.2.0",
     strip_prefix = "bazel_utils-abcdefg,
     token = "[your-token]",
 )
@@ -126,7 +131,7 @@ github_release(
     name = "some_name",
     owner = "jake-arkinstall",
     repository = "bazel_utils",
-    version = "1.0.3",
+    version = "1.2.0",
     token = GITHUB_TOKEN,
 )
 bitbucket_release(

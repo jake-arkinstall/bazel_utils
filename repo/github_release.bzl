@@ -40,7 +40,6 @@ def _github_release_impl(ctx):
             'type': 'pattern',
             'pattern': 'Basic {}'.format(ctx.attr.token)
         }
-    print(auth)
     download_info = ctx.download_and_extract(
         [url],
         "",
